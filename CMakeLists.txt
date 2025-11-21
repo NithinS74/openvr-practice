@@ -3,13 +3,13 @@ cmake_minimum_required(VERSION 3.10)
 set(TARGET_NAME hellolog)
 
 set(DRIVER_NAME driver_${TARGET_NAME})
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -static-libgcc -static-libstdc++")
 project(${TARGET_NAME})
 
 set(OPENVR_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/openvr)
 set(PLATFORM 64)
 
 
+add_definitions(-D_WIN32)
 set(ARCH_TARGET win${PLATFORM})
 set(WINDOWS_PATH_SUFFIXES win${PLATFORM} Win${PLATFORM} x${PLATFORM})
 
