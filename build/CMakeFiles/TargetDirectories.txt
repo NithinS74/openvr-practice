@@ -1,0 +1,3 @@
+/home/nithin/test/hellovr/build/CMakeFiles/driver_hellolog.dir
+/home/nithin/test/hellovr/build/CMakeFiles/edit_cache.dir
+/home/nithin/test/hellovr/build/CMakeFiles/rebuild_cache.dir
