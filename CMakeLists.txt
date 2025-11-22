@@ -21,8 +21,6 @@ find_library(OPENVR_LIBRARIES
         ${OPENVR_LIB_DIR}/bin
         ${OPENVR_LIB_DIR}/lib
         PATH_SUFFIXES
-        osx${PLATFORM}
-        linux${PLATFORM}
         win${PLATFORM}
         NO_DEFAULT_PATH
         NO_CMAKE_FIND_ROOT_PATH
