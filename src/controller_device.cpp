@@ -1,28 +1,32 @@
 
 #include "controller_device.h"
 
-class ControllerDevice : public vr::ITrackedDeviceServerDriver {
-private:
-    vr::ETrackedControllerRole role_;
-    vr::TrackedDeviceIndex_t device_id_;
-public:
-    ControllerDevice(vr::ETrackedControllerRole role):role_(role),device_id_(vr::k_unTrackedDeviceIndexInvalid){}
+ControllerDevice::ControllerDevice(vr::ETrackedControllerRole role) : role_(role), device_id_(vr::k_unTrackedDeviceIndexInvalid) {};
 
-    // Inherited via ITrackedDeviceServerDriver
-    virtual vr::EVRInitError Activate(uint32_t unObjectId) override{
-    vr::VRDriverLog()->Log("Controller activated")
-    device_id_=unObjectId
-    return vr::EVRInitError_None;
-  }
-    virtual void Deactivate() override{}
-    virtual void EnterStandby() override{}
-    virtual void* GetComponent(const char* pchComponentNameAndVersion) override{return nullptr}
-    virtual void DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize) override{
-    if(unResponseBufferSize>=1) pchResponseBuffer[0]=0;
-  }
-    virtual vr::DriverPose_t GetPose() override{
+vr::EVRInitError ControllerDevice::Activate(uint32_t unObjectId) {
+    vr::VRDriverLog()->Log("ControllerDevice::Activate");
+    
+    device_id_ = unObjectId;
+    
+    return vr::VRInitError_None;
+}
+
+void ControllerDevice::Deactivate() {
+}
+
+void ControllerDevice::EnterStandby() {
+}
+
+void* ControllerDevice::GetComponent(const char* pchComponentNameAndVersion) {
+    return nullptr;
+}
+
+void ControllerDevice::DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize) {
+    if(unResponseBufferSize >= 1)
+        pchResponseBuffer[0] = 0;
+}
+
+vr::DriverPose_t ControllerDevice::GetPose() {
     return vr::DriverPose_t();
-  }
-
-};
+}
 
