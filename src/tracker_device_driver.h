@@ -1,81 +1,65 @@
-//============ Copyright (c) Valve Corporation, All rights reserved. ============
+//============ Copyright (c) Valve Corporation, All rights reserved.
+//============
 #pragma once
 
 #include <array>
+#include <atomic>
 #include <string>
+#include <thread>
 
-// Phase 3: Windows Networking Headers
-// These must often be included before other Windows headers
+// Needed for networking (from previous steps)
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
+#include "common.h" // Include your shared data struct
 #include "openvr_driver.h"
-#include <atomic>
-#include <thread>
-#include <mutex> // Phase 3: Added for std::mutex
 
-enum MyComponent
-{
-	MyComponent_a_touch,
-	MyComponent_a_click,
+enum MyComponent {
+  // FIXED: Added grip_click which was missing and causing the error
+  MyComponent_grip_click,
 
-	MyComponent_trigger_value,
-	MyComponent_trigger_click,
+  MyComponent_trigger_value,
+  MyComponent_trigger_click,
 
-	MyComponent_MAX
+  MyComponent_MAX
 };
 
 //-----------------------------------------------------------------------------
 // Purpose: Represents a single tracked device in the system.
-// What this device actually is (controller, hmd) depends on the
-// properties you set within the device (see implementation of Activate)
 //-----------------------------------------------------------------------------
-class MyTrackerDeviceDriver : public vr::ITrackedDeviceServerDriver
-{
+class MyTrackerDeviceDriver : public vr::ITrackedDeviceServerDriver {
 public:
-	MyTrackerDeviceDriver( unsigned int my_tracker_id );
+  MyTrackerDeviceDriver(unsigned int my_tracker_id);
+  ~MyTrackerDeviceDriver(); // Added destructor for cleanup
 
-	vr::EVRInitError Activate( uint32_t unObjectId ) override;
+  vr::EVRInitError Activate(uint32_t unObjectId) override;
+  void Deactivate() override;
+  void EnterStandby() override;
 
-	void EnterStandby() override;
+  void *GetComponent(const char *pchComponentNameAndVersion) override;
+  void DebugRequest(const char *pchRequest, char *pchResponseBuffer,
+                    uint32_t unResponseBufferSize) override;
+  vr::DriverPose_t GetPose() override;
 
-	void *GetComponent( const char *pchComponentNameAndVersion ) override;
+  // ----- Functions we declare ourselves below -----
 
-	void DebugRequest( const char *pchRequest, char *pchResponseBuffer, uint32_t unResponseBufferSize ) override;
+  const std::string &MyGetSerialNumber();
 
-	vr::DriverPose_t GetPose() override;
+  void MyRunFrame();
+  void MyProcessEvent(const vr::VREvent_t &vrevent);
 
-	void Deactivate() override;
-
-	// ----- Functions we declare ourselves below -----
-
-	const std::string &MyGetSerialNumber();
-
-	void MyRunFrame();
-	void MyProcessEvent( const vr::VREvent_t &vrevent );
-
-	// Phase 3: Replaced MyPoseUpdateThread with the network receiver loop
-	// (We will implement this function in Phase 4)
-	void ReceiveLoop();
+  // Networking / Pose Update Logic
+  void UpdatePose(vr::HmdQuaternion_t newRotation);
 
 private:
-	unsigned int my_tracker_id_;
+  unsigned int my_tracker_id_;
+  std::atomic<vr::TrackedDeviceIndex_t> my_device_index_;
 
-	std::atomic< vr::TrackedDeviceIndex_t > my_device_index_;
+  std::string my_device_model_number_;
+  std::string my_device_serial_number_;
 
-	std::string my_device_model_number_;
-	std::string my_device_serial_number_;
+  std::array<vr::VRInputComponentHandle_t, MyComponent_MAX> input_handles_;
 
-	std::array< vr::VRInputComponentHandle_t, MyComponent_MAX > input_handles_;
-
-	std::atomic< bool > is_active_;
-
-	// Phase 3: New Member Variables
-	// ------------------------------------------------------------------------
-	SOCKET udpSocket;                     // To hold the network connection
-	std::thread receiverThread;           // To listen for data in the background
-	std::atomic<bool> isRunning;          // To safely control the thread lifecycle
-	vr::HmdQuaternion_t currentRotation;  // To store the latest received orientation
-	std::mutex dataMutex;                 // To protect access to currentRotation
-	// ------------------------------------------------------------------------
+  // Helper to store the latest rotation received from the provider
+  vr::HmdQuaternion_t last_rotation_;
 };
