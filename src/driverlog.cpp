@@ -1,0 +1,36 @@
+#include "driverlog.h"
+#include <stdarg.h>
+#include <stdio.h>
+
+static vr::IVRDriverLog *s_pLogFile = NULL;
+
+bool InitDriverLog(vr::IVRDriverLog *pDriverLog) {
+  if (s_pLogFile)
+    return false;
+  s_pLogFile = pDriverLog;
+  return s_pLogFile != NULL;
+}
+
+void CleanupDriverLog() { s_pLogFile = NULL; }
+
+static void DriverLogVarArgs(const char *pMsgFormat, va_list args) {
+  char buf[1024];
+  vsnprintf(buf, sizeof(buf), pMsgFormat, args);
+
+  if (s_pLogFile)
+    s_pLogFile->Log(buf);
+}
+
+void DriverLog(const char *pMsgFormat, ...) {
+  va_list args;
+  va_start(args, pMsgFormat);
+  DriverLogVarArgs(pMsgFormat, args);
+  va_end(args);
+}
+
+void DriverLogVR(const char *pMsgFormat, ...) {
+  va_list args;
+  va_start(args, pMsgFormat);
+  DriverLogVarArgs(pMsgFormat, args);
+  va_end(args);
+}
