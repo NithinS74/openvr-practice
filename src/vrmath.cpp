@@ -14,14 +14,15 @@ vr::HmdVector3_t operator-(const vr::HmdVector3_t &vec1,
 vr::HmdVector3_t operator*(const vr::HmdVector3_t &v,
                            const vr::HmdQuaternion_t &q) {
   vr::HmdQuaternion_t r = {
-      q.w * 0.0f - q.x * v.v[0] - q.y * v.v[1] - q.z * v.v[2],
-      q.w * v.v[0] + q.x * 0.0f + q.y * v.v[2] - q.z * v.v[1],
-      q.w * v.v[1] - q.x * v.v[2] + q.y * 0.0f + q.z * v.v[0],
-      q.w * v.v[2] + q.x * v.v[1] - q.y * v.v[0] + q.z * 0.0f};
+      q.w * 0.0 - q.x * v.v[0] - q.y * v.v[1] - q.z * v.v[2],
+      q.w * v.v[0] + q.x * 0.0 + q.y * v.v[2] - q.z * v.v[1],
+      q.w * v.v[1] - q.x * v.v[2] + q.y * 0.0 + q.z * v.v[0],
+      q.w * v.v[2] + q.x * v.v[1] - q.y * v.v[0] + q.z * 0.0};
 
-  return {r.w * -q.x + r.x * q.w - r.y * q.z + r.z * q.y,
-          r.w * -q.y + r.x * q.z + r.y * q.w - r.z * q.x,
-          r.w * -q.z - r.x * q.y + r.y * q.x + r.z * q.w};
+  // FIX: Explicitly cast the double result to float to prevent narrowing errors
+  return {static_cast<float>(r.w * -q.x + r.x * q.w - r.y * q.z + r.z * q.y),
+          static_cast<float>(r.w * -q.y + r.x * q.z + r.y * q.w - r.z * q.x),
+          static_cast<float>(r.w * -q.z - r.x * q.y + r.y * q.x + r.z * q.w)};
 }
 
 vr::HmdVector3_t operator*(const vr::HmdVector3_t &vec, float scalar) {
