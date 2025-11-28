@@ -5,8 +5,7 @@ set(TARGET_NAME simpletrackers)
 set(DRIVER_NAME "driver_${TARGET_NAME}")
 project(${TARGET_NAME})
 
-# 2. Platform Setup (Logic from your snippet)
-#    Determines if we are building for 64-bit or 32-bit Windows
+# 2. Platform Setup
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(PLATFORM 64)
 else()
@@ -16,8 +15,7 @@ endif()
 add_definitions(-D_WIN32)
 set(ARCH_TARGET win${PLATFORM})
 
-# 3. Locate OpenVR SDK (Standalone)
-#    Assumes you have copied the OpenVR SDK to: simpletrackers/lib/openvr
+# 3. Locate OpenVR SDK
 set(OPENVR_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/openvr)
 set(OPENVR_INCLUDE_DIR ${OPENVR_LIB_DIR}/headers)
 
@@ -36,32 +34,31 @@ if(NOT OPENVR_LIBRARIES)
     message(FATAL_ERROR "OpenVR library not found! Please ensure 'openvr_api.lib' is in ${OPENVR_LIB_DIR}/lib/win${PLATFORM}")
 endif()
 
-# 4. Define Source Files
-#    Includes your new common.h and standard driver files
+# 4. Define Source Files (FIXED: Added driverlog.cpp and driverlog.h)
 add_library(${DRIVER_NAME} SHARED
         src/hmd_driver_factory.cpp
         src/device_provider.h
         src/device_provider.cpp
         src/tracker_device_driver.h
         src/tracker_device_driver.cpp
+        src/driverlog.h  
+        src/driverlog.cpp
         src/common.h
+        src/vrmath.h
+        src/vrmath.cpp
 )
 
 # 5. Output Directory Setup
-#    Builds to: build/simpletrackers/bin/win64/driver_simpletrackers.dll
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}/bin/${ARCH_TARGET}>)
 set_target_properties(${DRIVER_NAME} PROPERTIES PREFIX "")
 
 # 6. Linking & Includes
-#    LINKS: OpenVR + ws2_32 (Windows Sockets for UDP)
 target_link_libraries(${DRIVER_NAME} PRIVATE ${OPENVR_LIBRARIES} ws2_32)
 
-#    INCLUDES: OpenVR Headers + Local 'src' folder
 target_include_directories(${DRIVER_NAME} PRIVATE ${OPENVR_INCLUDE_DIR})
 target_include_directories(${DRIVER_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # 7. Asset Copying
-#    Copies your 'resources' folder (renamed simpletrackers in source) to the build dir
 add_custom_command(
         TARGET ${DRIVER_NAME}
         PRE_BUILD
