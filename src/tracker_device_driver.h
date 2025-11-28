@@ -3,24 +3,21 @@
 #pragma once
 
 #include <array>
-#include <atomic>
 #include <string>
-#include <thread>
 
-// Needed for networking (from previous steps)
+// Networking Headers - Must often come first on Windows
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
-#include "common.h" // Include your shared data struct
 #include "openvr_driver.h"
+#include <atomic>
+#include <mutex> // Added for std::mutex
+#include <thread>
 
 enum MyComponent {
-  // FIXED: Added grip_click which was missing and causing the error
-  MyComponent_grip_click,
-
+  MyComponent_grip_click, // Fixed typo from previous steps
   MyComponent_trigger_value,
   MyComponent_trigger_click,
-
   MyComponent_MAX
 };
 
@@ -30,7 +27,7 @@ enum MyComponent {
 class MyTrackerDeviceDriver : public vr::ITrackedDeviceServerDriver {
 public:
   MyTrackerDeviceDriver(unsigned int my_tracker_id);
-  ~MyTrackerDeviceDriver(); // Added destructor for cleanup
+  ~MyTrackerDeviceDriver() = default; // Destructor
 
   vr::EVRInitError Activate(uint32_t unObjectId) override;
   void Deactivate() override;
@@ -41,15 +38,14 @@ public:
                     uint32_t unResponseBufferSize) override;
   vr::DriverPose_t GetPose() override;
 
-  // ----- Functions we declare ourselves below -----
-
+  // ----- Functions we declare ourselves -----
   const std::string &MyGetSerialNumber();
-
   void MyRunFrame();
   void MyProcessEvent(const vr::VREvent_t &vrevent);
 
-  // Networking / Pose Update Logic
-  void UpdatePose(vr::HmdQuaternion_t newRotation);
+  // This was missing in your previous header, causing the "undeclared
+  // identifier" error
+  void ReceiveLoop();
 
 private:
   unsigned int my_tracker_id_;
@@ -60,6 +56,13 @@ private:
 
   std::array<vr::VRInputComponentHandle_t, MyComponent_MAX> input_handles_;
 
-  // Helper to store the latest rotation received from the provider
-  vr::HmdQuaternion_t last_rotation_;
+  // Tracks if the driver has been Activated() by SteamVR
+  std::atomic<bool> is_active_;
+
+  // --- Networking & Threading Members (These were missing!) ---
+  SOCKET udpSocket;
+  std::thread receiverThread;
+  std::atomic<bool> isRunning;
+  vr::HmdQuaternion_t currentRotation;
+  std::mutex dataMutex;
 };
