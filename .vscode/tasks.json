@@ -1,0 +1,42 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            // 1) Configure step (cmake ..)
+            "label": "CMake Configure",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-S", "${workspaceFolder}",        // source dir (root of repo)
+                "-B", "${workspaceFolder}/build",  // build dir
+                "-G", "Visual Studio 17 2022"      // generator (matches your log)
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            // 2) Build step (this is what your launch.json calls)
+            "label": "CMake Build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build", "${workspaceFolder}/build",
+                "--config", "Debug"               // or "Release" if you prefer
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            // Make sure configure runs before build
+            "dependsOn": [
+                "CMake Configure"
+            ]
+        }
+    ]
+}

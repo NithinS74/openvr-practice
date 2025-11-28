@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug SteamVR (auto-attach vrserver)",
+            "type": "cppvsdbg",                       // Windows/MSVC debugger
+            "request": "launch",
+            "program": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\SteamVR\\bin\\win64\\vrstartup.exe",
+            "args": [],
+            "cwd": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\SteamVR\\bin\\win64",
+            "console": "integratedTerminal",
+
+            // Optional: build your driver first
+            "preLaunchTask": "CMake Build",
+
+            // ⭐ This makes VS Code debug child processes like vrserver.exe
+            "autoAttachChildProcess": true
+        }
+    ]
+}
