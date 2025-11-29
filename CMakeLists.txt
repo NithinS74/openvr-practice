@@ -34,34 +34,37 @@ if(NOT OPENVR_LIBRARIES)
     message(FATAL_ERROR "OpenVR library not found! Please ensure 'openvr_api.lib' is in ${OPENVR_LIB_DIR}/lib/win${PLATFORM}")
 endif()
 
-# 4. Define Source Files (FIXED: Added driverlog.cpp and driverlog.h)
+# 4. Output Directory Setup (MATCHING YOUR REQUEST)
+#    This forces the DLL to go to: build/simpletrackers/bin/win64/
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}/bin/${ARCH_TARGET})
+
+# 5. Define Source Files
 add_library(${DRIVER_NAME} SHARED
         src/hmd_driver_factory.cpp
         src/device_provider.h
         src/device_provider.cpp
         src/tracker_device_driver.h
         src/tracker_device_driver.cpp
-        src/driverlog.h  
+        src/driverlog.h
         src/driverlog.cpp
         src/common.h
         src/vrmath.h
         src/vrmath.cpp
 )
 
-# 5. Output Directory Setup
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}/bin/${ARCH_TARGET}>)
+# 6. Target Properties
 set_target_properties(${DRIVER_NAME} PROPERTIES PREFIX "")
 
-# 6. Linking & Includes
+# 7. Linking & Includes
 target_link_libraries(${DRIVER_NAME} PRIVATE ${OPENVR_LIBRARIES} ws2_32)
-
 target_include_directories(${DRIVER_NAME} PRIVATE ${OPENVR_INCLUDE_DIR})
 target_include_directories(${DRIVER_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-# 7. Asset Copying
+# 8. Asset Copying
+#    Copies the 'simpletrackers' resource folder to the build output so SteamVR can find it
 add_custom_command(
         TARGET ${DRIVER_NAME}
-        PRE_BUILD
+        POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/${TARGET_NAME}
         ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}
