@@ -5,12 +5,7 @@ set(TARGET_NAME simpletrackers)
 set(DRIVER_NAME "driver_${TARGET_NAME}")
 project(${TARGET_NAME})
 
-# 2. Platform Setup
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(PLATFORM 64)
-else()
-    set(PLATFORM 32)
-endif()
 
 add_definitions(-D_WIN32)
 set(ARCH_TARGET win${PLATFORM})
@@ -36,7 +31,7 @@ endif()
 
 # 4. Output Directory Setup (MATCHING YOUR REQUEST)
 #    This forces the DLL to go to: build/simpletrackers/bin/win64/
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}/bin/${ARCH_TARGET})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}/bin/${ARCH_TARGET}>)
 
 # 5. Define Source Files
 add_library(${DRIVER_NAME} SHARED
