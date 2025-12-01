@@ -13,7 +13,12 @@ vr::EVRInitError MyDeviceProvider::Init(vr::IVRDriverContext *pDriverContext) {
   // We need to initialise our driver context to make calls to the server.
   // OpenVR provides a macro to do this for us.
   VR_INIT_SERVER_DRIVER_CONTEXT(pDriverContext);
+
+  // Initialize the driver log wrapper using the context we just grabbed
+  InitDriverLog(vr::VRDriverLog());
+
   vr::VRDriverLog()->Log("asdfghjkl");
+  DriverLog( "asdf2" );
 
   const unsigned int number_of_trackers = 1;
   for (unsigned int i = 0; i < number_of_trackers; i++) {
@@ -101,6 +106,8 @@ void MyDeviceProvider::LeaveStandby() {}
 // but not after it has been called.
 //-----------------------------------------------------------------------------
 void MyDeviceProvider::Cleanup() {
+  CleanupDriverLog(); // Good practice to clear the pointer on cleanup
+
   // Our tracker devices will have already deactivated. Let's now destroy them.
   for (auto &tracker : my_tracker_devices_) {
     tracker = nullptr;

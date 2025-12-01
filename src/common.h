@@ -22,7 +22,8 @@ struct IMUPacket {
   float az;
 
   // Optional: Add a standard magic number or ID if you plan to support multiple
-  // trackers later. uint8_t tracker_id;
+  // trackers later.
+  uint8_t tracker_id;
 };
 
 #pragma pack(pop)
