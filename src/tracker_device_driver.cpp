@@ -46,14 +46,15 @@ vr::EVRInitError MyTrackerDeviceDriver::Activate( uint32_t unObjectId )
     is_active_ = true;
     my_device_index_ = unObjectId;
 
-    // Get the property container
+ // Get the property container
     vr::PropertyContainerHandle_t container = vr::VRProperties()->TrackedDeviceToPropertyContainer( my_device_index_ );
 
     // Set standard properties
     vr::VRProperties()->SetStringProperty( container, vr::Prop_ModelNumber_String, my_device_model_number_.c_str() );
-	vr::VRProperties()->SetStringProperty( container, vr::Prop_RenderModelName_String, "{htc}vr_tracker_vive_1_0" );
-    vr::VRProperties()->SetStringProperty( container, vr::Prop_InputProfilePath_String, "{simpletrackers}/input/mytracker_profile.json" );
-
+    
+    // FIX: Use standard Vive Tracker assets
+    vr::VRProperties()->SetStringProperty( container, vr::Prop_RenderModelName_String, "{htc}vr_tracker_vive_1_0" );
+    vr::VRProperties()->SetStringProperty( container, vr::Prop_InputProfilePath_String, "{htc}/input/vive_tracker_profile.json" );
     // Set up input components (buttons/triggers)
     vr::VRDriverInput()->CreateBooleanComponent( container, "/input/grip/click", &input_handles_[MyComponent_grip_click] );
     vr::VRDriverInput()->CreateScalarComponent( container, "/input/trigger/value",
